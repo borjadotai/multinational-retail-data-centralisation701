@@ -1,0 +1,8 @@
+pandas
+requests
+boto3
+psycopg2-binary
+PyYAML
+SQLAlchemy
+phonenumbers
+tabula-py
