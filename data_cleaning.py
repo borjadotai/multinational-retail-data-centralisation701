@@ -1,4 +1,5 @@
 import re
+import numpy as np
 import pandas as pd
 import phonenumbers
 from datetime import datetime
@@ -59,3 +60,28 @@ class DataCleaning:
             return date_str
         else:
             return pd.NA
+        
+    def clean_store_data(self, df):
+        df_cleaned = df.copy()
+
+        # Replace 'N/A', 'None', and None with NaN
+        df_cleaned.replace(['N/A', 'None', None], np.nan, inplace=True)
+
+        # Convert 'index', 'longitude', and 'latitude' to numeric, set errors to 'coerce' to handle invalid values
+        numeric_columns = ['index', 'longitude', 'latitude']
+        for col in numeric_columns:
+            df_cleaned[col] = pd.to_numeric(df_cleaned[col], errors='coerce')
+
+        # Remove rows with NaN in critical columns (like 'address')
+        df_cleaned.dropna(subset=['address'], inplace=True)
+
+        # Standardize date format in 'opening_date'
+        df_cleaned['opening_date'] = pd.to_datetime(df_cleaned['opening_date'], errors='coerce')
+
+        # Clean and standardize string columns
+        text_columns = ['locality', 'store_type', 'country_code', 'continent']
+        for col in text_columns:
+            df_cleaned.loc[:, col] = df_cleaned[col].str.title().str.strip()
+
+        # Return the cleaned DataFrame
+        return df_cleaned

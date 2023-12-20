@@ -16,7 +16,7 @@ def main():
     aicore_rds_db = DatabaseConnector(aicore_db_creds)
     local_postgres_db = DatabaseConnector(local_db_creds)
 
-    # Agents
+    # General
     cleaner = DataCleaning()
     extractor = DataExtractor()
 
@@ -41,12 +41,15 @@ def main():
         # Stores number = 451
         # 2. Retrieve stores data
         stores_data = extractor.retrieve_stores_data(store_details_url_base, api_key, stores_num)
-        print(stores_data)
+        # 3. Clean the data
+        clean_stores_data = cleaner.clean_store_data(stores_data)
+        # 4. Upload data
+        local_postgres_db.upload_to_db(clean_stores_data, 'dim_store_details')
 
 
     # ==== RUN METHODS =====
-    # user_data()
-    # card_details()
+    user_data()
+    card_details()
     stores()
 
 if __name__ == "__main__":

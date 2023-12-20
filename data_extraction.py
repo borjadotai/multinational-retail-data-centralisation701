@@ -4,6 +4,7 @@ import pandas as pd
 from io import BytesIO
 from data_cleaning import DataCleaning
 from utils import authenticated_request
+from concurrent.futures import ThreadPoolExecutor
 
 class DataExtractor:
     def __init__(self):
@@ -37,16 +38,15 @@ class DataExtractor:
         # List to hold store data
         stores_data = []
 
-        # Loop through all store numbers
-        for store_number in range(1, total_stores):
-            # Construct the full URL for each specific store
+        def worker_fun(store_number):
             store_url = f"{store_details_url_base}/{store_number}"
-            
-            # Make the API call
             response = authenticated_request(store_url, api_key)
             if response:
-                # Add store data to the list
                 stores_data.append(response)
+
+        # Could increase threads for faster work
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            executor.map(worker_fun, [i for i in range(451)])
 
         # Convert the list of dictionaries to a DataFrame
         return pd.DataFrame(stores_data)
