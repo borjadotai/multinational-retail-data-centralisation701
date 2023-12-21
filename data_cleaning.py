@@ -143,4 +143,8 @@ class DataCleaning:
 
         return cleaned_orders_df
 
-
+    def clean_date_data(self, df):
+        cleaned_df = df.copy()
+        cleaned_df.dropna(inplace=True)
+        cleaned_df.drop_duplicates(inplace=True)
+        return cleaned_df

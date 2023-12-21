@@ -52,7 +52,7 @@ class DataExtractor:
         # Convert the list of dictionaries to a DataFrame
         return pd.DataFrame(stores_data)
 
-    def extract_from_s3(self, s3_path):
+    def extract_from_s3(self, s3_path, type='csv'):
         # Parse bucket name and object key from the s3_path
         bucket_name = s3_path.split('/')[2]
         object_key = '/'.join(s3_path.split('/')[3:])
@@ -63,8 +63,12 @@ class DataExtractor:
         # Get the object from S3
         response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
 
-        # Read the object's content into a pandas DataFrame
-        data = response['Body'].read().decode('utf-8')
-        df = pd.read_csv(StringIO(data))
+        if(type == 'csv'):
+            data = response['Body'].read().decode('utf-8')
+            df = pd.read_csv(StringIO(data))
+
+        if(type == 'json'):
+            json_content = response['Body'].read()
+            df = pd.read_json(BytesIO(json_content))
 
         return df
