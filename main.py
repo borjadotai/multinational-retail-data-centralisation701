@@ -2,7 +2,7 @@ from data_extraction import DataExtractor
 from data_cleaning import DataCleaning
 from database_utils import DatabaseConnector
 
-def main():
+def main(task_number):
 
     # Constants
     aicore_db_creds = 'db_creds.yaml'
@@ -22,8 +22,9 @@ def main():
     cleaner = DataCleaning()
     extractor = DataExtractor()
 
+    # Tasks implementation
 
-    def user_data():
+    def task_3():
         # 1. Find users table -> table = 'legacy_users'
         # 2. Read table and turn to dataframe
         users_df = aicore_rds_db.read_rds_table('legacy_users')
@@ -32,12 +33,12 @@ def main():
         # 4. Upload data to local db
         local_postgres_db.upload_to_db(clean_data, 'dim_users')
 
-    def card_details():
+    def task_4():
         card_details = extractor.retrieve_pdf_data(card_details_pdf_url)
         clean_card_details = cleaner.clean_card_data(card_details)
         local_postgres_db.upload_to_db(clean_card_details, 'dim_card_details')
 
-    def stores():
+    def task_5():
         # 1. Use list_number_of_stores to see how many stores
         stores_num = extractor.list_number_of_stores(number_stores_url, api_key)
         # Stores number = 451
@@ -48,31 +49,44 @@ def main():
         # 4. Upload data
         local_postgres_db.upload_to_db(clean_stores_data, 'dim_store_details')
 
-    def product_details():
+    def task_6():
         s3_product_details = extractor.extract_from_s3(s3_products_address)
         standarised_product_details = cleaner.convert_product_weights(s3_product_details)
         clean_product_details = cleaner.clean_products_data(standarised_product_details)
         local_postgres_db.upload_to_db(clean_product_details, 'dim_products')
 
-    def orders():
+    def task_7():
         # 1. Figure out orders table name = orders_table
         orders = aicore_rds_db.read_rds_table('orders_table')
         clean_orders = cleaner.clean_orders_data(orders)
         local_postgres_db.upload_to_db(clean_orders, 'orders_table')
 
-    def date_events():
+    def task_8():
         s3_date_events = extractor.extract_from_s3(s3_date_events_address, 'json')
         clean_events = cleaner.clean_date_data(s3_date_events)
         local_postgres_db.upload_to_db(clean_events, 'dim_date_times')
 
+    def default_case():
+        print("This is a default case for numbers outside 3-8")
 
-    # ==== RUN METHODS =====
-    # user_data()
-    # card_details()
-    # stores()
-    # product_details()
-    # orders()
-    date_events()
+    switch = {
+        3: task_3,
+        4: task_4,
+        5: task_5,
+        6: task_6,
+        7: task_7,
+        8: task_8,
+    }
+
+    switch.get(task_number, default_case)()
 
 if __name__ == "__main__":
-    main()
+    try:
+        number = int(input("Please pick the task you want to run (3 - 8): "))
+        if 3 <= number <= 8:
+            print(f"Running task number {number}")
+            main(number)
+        else:
+            print("Error: Number must be between 3 and 8 (inclusive).")
+    except ValueError:
+        print("Error: Invalid input, please enter a number.")

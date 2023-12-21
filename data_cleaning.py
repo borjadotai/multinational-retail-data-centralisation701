@@ -24,12 +24,12 @@ class DataCleaning:
         df['join_date'] = pd.to_datetime(df['join_date'], errors='coerce')
 
         # Standardize phone numbers
-        df['phone_number'] = df['phone_number'].apply(DataCleaning.standardize_phone_number)
+        df['phone_number'] = df['phone_number'].apply(DataCleaning._standardize_phone_number)
 
         return df
 
     @staticmethod
-    def standardize_phone_number(phone):
+    def _standardize_phone_number(phone):
         try:
             parsed_phone = phonenumbers.parse(phone, None)
             return phonenumbers.format_number(parsed_phone, phonenumbers.PhoneNumberFormat.E164)
