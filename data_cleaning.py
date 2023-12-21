@@ -132,3 +132,15 @@ class DataCleaning:
         cleaned_df['product_price'] = cleaned_df['product_price'].str.extract('(\d+\.\d+|\d+)').astype(float)
 
         return cleaned_df
+    
+    def clean_orders_data(self, orders_df):
+        # Create a copy of the DataFrame to avoid modifying the original data
+        cleaned_orders_df = orders_df.copy()
+
+        # Remove unnecessary columns
+        columns_to_remove = ['first_name', 'last_name', '1']
+        cleaned_orders_df.drop(columns=columns_to_remove, errors='ignore', inplace=True)
+
+        return cleaned_orders_df
+
+

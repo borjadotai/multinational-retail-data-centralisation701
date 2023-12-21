@@ -53,11 +53,19 @@ def main():
         clean_product_details = cleaner.clean_products_data(standarised_product_details)
         local_postgres_db.upload_to_db(clean_product_details, 'dim_products')
 
+    def orders():
+        # 1. Figure out orders table name = orders_table
+        orders = aicore_rds_db.read_rds_table('orders_table')
+        clean_orders = cleaner.clean_orders_data(orders)
+        local_postgres_db.upload_to_db(clean_orders, 'orders_table')
+
+
     # ==== RUN METHODS =====
     # user_data()
     # card_details()
     # stores()
-    product_details()
+    # product_details()
+    orders()
 
 if __name__ == "__main__":
     main()
