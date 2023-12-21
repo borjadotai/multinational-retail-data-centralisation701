@@ -85,3 +85,50 @@ class DataCleaning:
 
         # Return the cleaned DataFrame
         return df_cleaned
+    
+    def convert_product_weights(self, products_df):
+            # Function to convert weight to kg
+            def to_kg(weight):
+                if pd.isna(weight):
+                    return None
+
+                # Extract the numeric part and the unit
+                match = re.match(r'(\d*\.?\d+)([a-zA-Z]+)', weight)
+                if not match:
+                    return None
+
+                value, unit = match.groups()
+                value = float(value)
+
+                # Convert to kg based on the unit
+                if unit == 'g':
+                    return value / 1000  # Convert grams to kilograms
+                elif unit == 'kg':
+                    return value  # Already in kilograms
+                else:
+                    return None  # Unhandled unit
+
+            # Apply the conversion to the weight column
+            products_df['weight'] = products_df['weight'].apply(to_kg)
+
+            return products_df
+
+    def clean_products_data(self, df):
+        # Create a copy of the DataFrame
+        cleaned_df = df.copy()
+
+        # Handling missing values - Example: drop rows where 'product_name' or 'product_price' is missing
+        cleaned_df.dropna(subset=['product_name', 'product_price'], inplace=True)
+
+        # Standardize text formats - Example: strip whitespace and convert to title case
+        text_columns = ['product_name', 'uuid', 'removed', 'product_code']
+        for col in text_columns:
+            cleaned_df[col] = cleaned_df[col].str.strip().str.title()
+
+        # Remove duplicate rows based on uuid
+        cleaned_df.drop_duplicates(subset=['uuid'], inplace=True)
+
+        # Handle product_price - remove non-numeric characters and convert to float (all prices are in gbp)
+        cleaned_df['product_price'] = cleaned_df['product_price'].str.extract('(\d+\.\d+|\d+)').astype(float)
+
+        return cleaned_df

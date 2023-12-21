@@ -1,7 +1,8 @@
 import tabula
 import requests
 import pandas as pd
-from io import BytesIO
+import boto3
+from io import BytesIO, StringIO
 from data_cleaning import DataCleaning
 from utils import authenticated_request
 from concurrent.futures import ThreadPoolExecutor
@@ -50,3 +51,20 @@ class DataExtractor:
 
         # Convert the list of dictionaries to a DataFrame
         return pd.DataFrame(stores_data)
+
+    def extract_from_s3(self, s3_path):
+        # Parse bucket name and object key from the s3_path
+        bucket_name = s3_path.split('/')[2]
+        object_key = '/'.join(s3_path.split('/')[3:])
+
+        # Create a boto3 client
+        s3_client = boto3.client('s3')
+
+        # Get the object from S3
+        response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
+
+        # Read the object's content into a pandas DataFrame
+        data = response['Body'].read().decode('utf-8')
+        df = pd.read_csv(StringIO(data))
+
+        return df

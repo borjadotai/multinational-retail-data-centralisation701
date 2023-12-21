@@ -8,6 +8,7 @@ def main():
     aicore_db_creds = 'db_creds.yaml'
     local_db_creds = 'local_db_creds.yaml'
     api_key = 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'
+    s3_products_address = 's3://data-handling-public/products.csv'
     number_stores_url = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'
     store_details_url_base = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details'
     card_details_pdf_url = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf'
@@ -46,11 +47,17 @@ def main():
         # 4. Upload data
         local_postgres_db.upload_to_db(clean_stores_data, 'dim_store_details')
 
+    def product_details():
+        s3_product_details = extractor.extract_from_s3(s3_products_address)
+        standarised_product_details = cleaner.convert_product_weights(s3_product_details)
+        clean_product_details = cleaner.clean_products_data(standarised_product_details)
+        local_postgres_db.upload_to_db(clean_product_details, 'dim_products')
 
     # ==== RUN METHODS =====
-    user_data()
-    card_details()
-    stores()
+    # user_data()
+    # card_details()
+    # stores()
+    product_details()
 
 if __name__ == "__main__":
     main()
