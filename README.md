@@ -25,4 +25,8 @@ task you want, from 3 to 8. It will then run the script that executes everything
 
 ## Milestone 3
 
-All sql commands are inthe db_changes folder organised per task
+All sql commands are inthe db_changes folder organised per task.
+
+## Milestone 4
+
+All sql queries are inthe queries folder organised per task.
